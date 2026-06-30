@@ -1,6 +1,9 @@
+import argparse
 import logging
 
+from config import SUPPORTED_COMPANIES
 from agent import TrendReportAgent
+from schemas import TrendReportRequest
 
 
 logging.basicConfig(
@@ -9,7 +12,36 @@ logging.basicConfig(
 )
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run Trend Report Agent.")
+    parser.add_argument("--ticker", required=True, help="Supported company ticker.")
+    parser.add_argument("--query", default=None, help="Optional trend query.")
+    parser.add_argument("--date-from", default=None)
+    parser.add_argument("--date-to", default=None)
+    parser.add_argument("--legacy-markdown", action="store_true")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    path = TrendReportAgent().run()
-    print(f"브리핑 생성 완료: {path}")
+    args = parse_args()
+    agent = TrendReportAgent()
+    if args.legacy_markdown:
+        path = agent.run()
+        print(f"브리핑 생성 완료: {path}")
+    else:
+        company = SUPPORTED_COMPANIES.get(args.ticker)
+        if company is None:
+            raise SystemExit(f"지원하지 않는 ticker입니다: {args.ticker}")
+        result = agent.run_trend_report(
+            TrendReportRequest(
+                ticker=company.ticker,
+                company=company.name,
+                sector=company.sector,
+                query=args.query,
+                date_from=args.date_from,
+                date_to=args.date_to,
+            )
+        )
+        path = agent.save_json(result)
+        print(f"트렌드 리포트 JSON 생성 완료: {path}")
 
