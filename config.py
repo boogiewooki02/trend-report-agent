@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 load_dotenv(BASE_DIR.parent / "financial_research_data_agent" / ".env")
-load_dotenv(BASE_DIR.parent / "_external_financial_research_data_agent" / ".env")
 
 
 @dataclass(frozen=True)
@@ -22,41 +21,20 @@ class Company:
     sector: str
 
 
-SUPPORTED_COMPANIES = {
-    "005930": Company("005930", "삼성전자", "반도체"),
-    "000660": Company("000660", "SK하이닉스", "반도체"),
-    "005380": Company("005380", "현대차", "자동차"),
-    "035420": Company("035420", "NAVER", "플랫폼"),
-    "003230": Company("003230", "삼양식품", "식품"),
-    "352820": Company("352820", "HYBE", "엔터테인먼트"),
-    "373220": Company("373220", "LG에너지솔루션", "2차전지"),
-}
-
-DEFAULT_TICKERS = tuple(SUPPORTED_COMPANIES.keys())
+PORTFOLIO = (
+    Company("005930", "삼성전자", "반도체"),
+    Company("000660", "SK하이닉스", "반도체"),
+    Company("005380", "현대차", "자동차"),
+    Company("035420", "NAVER", "플랫폼"),
+)
 
 LOOKBACK_DAYS = (1, 3, 7, 30)
 REPORT_NAMESPACE = "report_chunks"
 SEARCH_QUERY = "실적 전망 성장 동력 산업 전망 투자 의견 목표주가 위험 요인 향후 촉매"
-REPORT_TOP_K = int(os.getenv("TREND_REPORT_REPORT_TOP_K", "8"))
-NEWS_TOP_K = int(os.getenv("TREND_REPORT_NEWS_TOP_K", "5"))
-MACRO_TOP_K = int(os.getenv("TREND_REPORT_MACRO_TOP_K", "3"))
 TOP_K = 1000
 MAX_CHUNKS_PER_REPORT = 3
 MAX_CHUNKS_PER_COMPANY = 10
 TIMEZONE = ZoneInfo("Asia/Seoul")
-
-DATA_AGENT_PATH = Path(
-    os.getenv(
-        "DATA_AGENT_PATH",
-        str(BASE_DIR.parent / "financial_research_data_agent"),
-    )
-)
-if not DATA_AGENT_PATH.exists():
-    DATA_AGENT_PATH = BASE_DIR.parent / "_external_financial_research_data_agent"
-
-DATA_AGENT_DB_PATH = Path(
-    os.getenv("DATA_AGENT_DB_PATH", str(DATA_AGENT_PATH / "db" / "reports.db"))
-)
 
 
 def today_kst() -> date:

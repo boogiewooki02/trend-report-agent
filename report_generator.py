@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import json
 import os
-from typing import Any
 
 from openai import OpenAI
 
 from config import require_env
-from prompts import SYSTEM_PROMPT, build_trend_json_prompt, build_user_prompt
-from schemas import CompanyEvidence, TrendReportRequest
+from prompts import SYSTEM_PROMPT, build_user_prompt
+from schemas import CompanyEvidence
 
 
 class ReportGenerator:
@@ -100,64 +98,3 @@ class ReportGenerator:
             )
 
         return "\n\n".join(blocks), sources
-
-    def generate_cards(
-        self,
-        request: TrendReportRequest,
-        context: dict[str, Any],
-    ) -> dict[str, Any]:
-        prompt = build_trend_json_prompt(request, self._compact_context(context))
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.2,
-        )
-        body = response.choices[0].message.content or ""
-        return self._parse_cards(body)
-
-    @staticmethod
-    def _compact_context(context: dict[str, Any]) -> dict[str, Any]:
-        return {
-            "report_documents": context.get("report_documents", {}).get("results", []),
-            "news_documents": context.get("news_documents", {}).get("results", []),
-            "macro_documents": context.get("macro_documents", {}).get("results", []),
-            "report_metadata": context.get("report_metadata", {}),
-            "target_prices": context.get("target_prices", {}),
-            "price_data": context.get("price_data", {}),
-            "macro_data": context.get("macro_data", {}),
-        }
-
-    @staticmethod
-    def _parse_cards(body: str) -> dict[str, Any]:
-        cleaned = body.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.strip("`")
-            if cleaned.startswith("json"):
-                cleaned = cleaned[4:].strip()
-        try:
-            parsed = json.loads(cleaned)
-        except json.JSONDecodeError:
-            parsed = {
-                "summary": [body.strip()],
-                "positive_factors": [],
-                "risk_factors": [],
-                "broker_differences": [],
-                "target_price_trend": {},
-                "news_issue_cards": [],
-                "macro_comment": "",
-            }
-
-        defaults = {
-            "summary": [],
-            "positive_factors": [],
-            "risk_factors": [],
-            "broker_differences": [],
-            "target_price_trend": {},
-            "news_issue_cards": [],
-            "macro_comment": "",
-        }
-        defaults.update(parsed if isinstance(parsed, dict) else {})
-        return defaults

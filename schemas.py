@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Any
 
 from config import Company
 
@@ -41,36 +40,4 @@ class CompanyEvidence:
     def latest_report_date(self) -> str | None:
         dates = [chunk.published_at for chunk in self.chunks if chunk.published_at]
         return max(dates) if dates else None
-
-
-@dataclass(frozen=True)
-class TrendReportRequest:
-    ticker: str
-    company: str
-    sector: str = ""
-    query: str | None = None
-    date_from: str | None = None
-    date_to: str | None = None
-    as_of_date: str | None = None
-
-
-@dataclass
-class TrendReportResult:
-    ticker: str
-    company: str
-    as_of_date: str
-    cards: dict[str, Any]
-    evidence: list[dict[str, Any]]
-    data_status: dict[str, Any]
-    raw_context: dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "ticker": self.ticker,
-            "company": self.company,
-            "as_of_date": self.as_of_date,
-            "cards": self.cards,
-            "evidence": self.evidence,
-            "data_status": self.data_status,
-        }
 

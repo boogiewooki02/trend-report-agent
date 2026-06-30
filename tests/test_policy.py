@@ -2,13 +2,12 @@ from datetime import date
 import sys
 from pathlib import Path
 
-import pytest
-
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from config import Company
 from schemas import CompanyEvidence, ReportChunk
+from pinecone_retriever import ReportRetriever
 from report_generator import ReportGenerator
 
 
@@ -38,9 +37,6 @@ def test_company_evidence_marks_fallback():
 
 
 def test_mismatched_report_title_is_rejected():
-    pytest.importorskip("pinecone")
-    from pinecone_retriever import ReportRetriever
-
     samsung = Company("005930", "삼성전자", "반도체")
     assert ReportRetriever._matches_company_title("삼성전자", samsung) is True
     assert ReportRetriever._matches_company_title("삼성물산", samsung) is False
