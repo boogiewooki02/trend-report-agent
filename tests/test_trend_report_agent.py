@@ -9,13 +9,17 @@ class FakeDataClient:
                 "results": [
                     {
                         "chunk_id": "r1_chunk_001",
+                        "report_id": "r1",
                         "ticker": ticker,
                         "company": "삼성전자",
                         "date": "2026-06-15",
                         "source": "KIRS",
+                        "author_org": "테스트증권",
                         "document_type": "report",
                         "report_type": "company_report",
                         "title": "삼성전자 리포트",
+                        "page_start": 1,
+                        "page_end": 2,
                         "content": "HBM 수요 증가가 성장 요인이다.",
                         "score": 0.9,
                         "url": "https://example.com/report.pdf",
@@ -68,3 +72,6 @@ def test_run_trend_report_returns_card_json():
     assert data["cards"]["summary"]
     assert data["cards"]["target_price_trend"]["avg_target_price"] == 95000
     assert data["evidence"][0]["evidence_id"] == "S1"
+    assert data["evidence"][0]["report_id"] == "r1"
+    assert data["evidence"][0]["page_start"] == 1
+    assert data["evidence"][0]["author_org"] == "테스트증권"

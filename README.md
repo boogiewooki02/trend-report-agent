@@ -79,4 +79,6 @@ run.py                  실행 진입점
 ## 현재 제약
 
 - Agent B 레포와 DB가 준비되어 있어야 합니다.
+- 근거 리포트/페이지 표시를 위해 Agent B `search_documents()` 반환값에
+  `report_id`, `author_org`, `page_start`, `page_end`가 포함되어야 합니다.
 - 공시 데이터는 현재 Trend Report 카드에는 기본 포함하지 않고, 필요 시 확장합니다.
